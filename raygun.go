@@ -1,3 +1,8 @@
+// Package raygun is an unofficial library to send crash reporting to [Raygun](https://raygun.com/).
+//
+// Crash reporting to Raygun is extremely simple: [It's an authenticated http POST with json data](https://raygun.com/raygun-providers/rest-json-api).
+//
+// This library provides the struct and some helper methods to help fill them with data.
 package raygun
 
 import (
@@ -12,10 +17,10 @@ import (
 	"github.com/pkg/errors"
 )
 
-// Endpoint contains the endpoint of the raygun api
+// Endpoint contains the endpoint of the raygun api. You can change it for testing purposes.
 var Endpoint = "https://api.raygun.io"
 
-// Post is the body of a raygun message
+// Post is the full body of a raygun message. See https://raygun.com/raygun-providers/rest-json-api
 type Post struct {
 	OccuredOn string  `json:"occurredOn,omitempty"` // the time the error occured on, format 2006-01-02T15:04:05Z
 	Details   Details `json:"details,omitempty"`    // all the details needed by the API
@@ -73,7 +78,7 @@ type StackTraceElement struct {
 	MethodName  string `json:"methodName,omitempty"`
 }
 
-// Breadcrumb is a step
+// Breadcrumb is a step that the user did in the application. See https://raygun.com/thinktank/suggestion/4228
 type Breadcrumb struct {
 	Message    string      `json:"message,omitempty"`
 	Category   string      `json:"category,omitempty"`
@@ -130,7 +135,7 @@ type Context struct {
 	Identifier string `json:"identifier,omitempty"`
 }
 
-// NewPost creates a new post by collecting data about the system
+// NewPost creates a new post by collecting data about the system, such as the current timestamp, os version and architecture, and number of cpus
 func NewPost() Post {
 	hostname, err := os.Hostname()
 	if err != nil {
@@ -153,6 +158,10 @@ func NewPost() Post {
 }
 
 // FromErr creates an error struct from an error
+// If the error satisfies the interfaces `Class() string` and/or `Data() interface{}` it will use them to construct the
+// Error struct.
+// FromErr also constructs a stacktrace. It the error satisfies the interface `Stacktrace() []string` it will use that.
+// Otherwise it will use the runtime package to retrieve the goroutine stacktrace
 func FromErr(err error) Error {
 	// If it's already a raygun error, don't do anything
 	if e, ok := err.(Error); ok {
@@ -170,7 +179,7 @@ func FromErr(err error) Error {
 	return rayerr
 }
 
-// FromReq returns a Request struct from a http request
+// FromReq returns a Request struct from a http request. Rawdata is set to the content of Body
 func FromReq(req *http.Request) Request {
 	body, _ := ioutil.ReadAll(req.Body)
 
@@ -188,7 +197,7 @@ func FromReq(req *http.Request) Request {
 	return request
 }
 
-// Submit sends the error to raygun
+// Submit sends the error to raygun. If the client is nil it will use a default one with a 5s timeout
 func Submit(post Post, key string, client *http.Client) error {
 	json, err := json.Marshal(post)
 	if err != nil {
