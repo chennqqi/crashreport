@@ -5,7 +5,6 @@ import (
 	"testing"
 
 	"github.com/codeclysm/raygun"
-	"github.com/davecgh/go-spew/spew"
 	jujuerr "github.com/juju/errors"
 	pkerr "github.com/pkg/errors"
 )
@@ -38,8 +37,6 @@ func TestFromErr(t *testing.T) {
 	if len(rayErr.StackTrace) != 4 {
 		t.Error("rayErr.StackTrace should be 4 elements long")
 	}
-
-	spew.Dump(rayErr.StackTrace)
 
 	// juju/errors
 	err = jujuerr.New("new error")
