@@ -8,6 +8,7 @@ package raygun
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"os"
@@ -68,6 +69,14 @@ type StackTrace []StackTraceElement
 // AddEntry adds a new line to the stacktrace
 func (s *StackTrace) AddEntry(lineNumber int, packageName, fileName, methodName string) {
 	*s = append(*s, StackTraceElement{lineNumber, packageName, fileName, methodName})
+}
+
+func (s *StackTrace) String() string {
+	out := ""
+	for _, line := range *s {
+		out = out + fmt.Sprintf("%s/%s:%d\n", line.PackageName, line.FileName, line.LineNumber)
+	}
+	return out
 }
 
 // StackTraceElement is one element of the error's stack trace.
