@@ -134,9 +134,15 @@ func stacktrace(err error) StackTrace {
 		for _, line := range s {
 			parts := strings.Split(line, ":")
 
-			n, err := strconv.Atoi(parts[1])
-			if err != nil {
+			var n int
+			if len(parts) < 1 {
 				n = -1
+			} else {
+				var err error
+				n, err = strconv.Atoi(parts[1])
+				if err != nil {
+					n = -1
+				}
 			}
 
 			stack.AddEntry(n, "", parts[0], "")
