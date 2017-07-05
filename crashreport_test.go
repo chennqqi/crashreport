@@ -1,10 +1,9 @@
-package raygun_test
+package crashreport
 
 import (
 	"errors"
 	"testing"
 
-	"github.com/codeclysm/raygun"
 	jujuerr "github.com/juju/errors"
 	pkerr "github.com/pkg/errors"
 )
@@ -21,11 +20,11 @@ func (e custErr) Cause() error {
 
 func TestFromErr(t *testing.T) {
 	var err error
-	var rayErr raygun.Error
+	var rayErr Error
 
 	// pkg/errors
 	err = pkerr.New("new error")
-	rayErr = raygun.FromErr(wrapErr(err))
+	rayErr = FromErr(wrapErr(err))
 
 	if rayErr.Message != "wrapped err: new error" {
 		t.Error("rayErr.Message should be 'wrapped err: new error'")
@@ -40,7 +39,7 @@ func TestFromErr(t *testing.T) {
 
 	// juju/errors
 	err = jujuerr.New("new error")
-	rayErr = raygun.FromErr(annotateErr(err))
+	rayErr = FromErr(annotateErr(err))
 
 	if rayErr.Message != "wrapped err: new error" {
 		t.Error("rayErr.Message should be 'wrapped err: new error'")
@@ -54,7 +53,7 @@ func TestFromErr(t *testing.T) {
 	}
 
 	// standard error
-	rayErr = raygun.FromErr(errors.New("new error"))
+	rayErr = FromErr(errors.New("new error"))
 
 	if rayErr.Message != "new error" {
 		t.Error("rayErr.Message should be 'new error'")

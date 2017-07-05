@@ -13,15 +13,15 @@ This library provides the struct and some helper methods to help fill them with 
 The classic way to use raygun is to recover panics and send info to the raygun server:
 
 ```go
-import "github.com/codeclysm/raygun"
+import "github.com/chennqqi/crashreport"
 
 func main() {
+	targetUrl := "http://xxxxx.xx"
 	defer func() {
 		if e := recover(); e != nil {
-			post := raygun.NewPost()
-			post.Details.Error = raygun.FromErr(err)
-
-			raygun.Submit(post, "thisismysecretkey", nil)
+			post := crashreport.NewPost()
+			post.Details.Error = crashreport.FromErr(err)
+			crashreport.SubmitTo(post, 											targetUrl,"thisismysecretkey", nil)
 		}
 	}
 

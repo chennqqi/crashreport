@@ -3,7 +3,7 @@
 // Crash reporting to Raygun is extremely simple: [It's an authenticated http POST with json data](https://raygun.com/raygun-providers/rest-json-api).
 //
 // This library provides the struct and some helper methods to help fill them with data.
-package raygun
+package crashreport
 
 import (
 	"bytes"
@@ -214,6 +214,44 @@ func Submit(post Post, key string, client *http.Client) error {
 	}
 
 	r, err := http.NewRequest("POST", Endpoint+"/entries", bytes.NewBuffer(json))
+	if err != nil {
+		return errors.Wrapf(err, "create req")
+	}
+	r.Header.Add("X-ApiKey", key)
+
+	// Default client has 5s timeout
+	if client == nil {
+		client = &http.Client{
+			Timeout: 5 * time.Second,
+		}
+	}
+
+	resp, err := client.Do(r)
+	if err != nil {
+		return errors.Wrapf(err, "execute req")
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != 202 {
+		body, err := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			body = []byte("no body")
+		}
+
+		return errors.New("unexpected answer '" + resp.Status + "' from Raygun: " + string(body))
+	}
+
+	return nil
+}
+
+// Submit sends the error to host(with scheam). If the client is nil it will use a default one with a 5s timeout
+func SubmitToUrl(post Post, reportUrl, key string, client *http.Client) error {
+	json, err := json.Marshal(post)
+	if err != nil {
+		return errors.Wrapf(err, "convert to json")
+	}
+
+	r, err := http.NewRequest("POST", reportUrl, bytes.NewBuffer(json))
 	if err != nil {
 		return errors.Wrapf(err, "create req")
 	}

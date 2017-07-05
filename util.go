@@ -1,4 +1,4 @@
-package raygun
+package crashreport
 
 import (
 	"fmt"
