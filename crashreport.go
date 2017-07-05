@@ -281,3 +281,10 @@ func SubmitToUrl(post Post, reportUrl, key string, client *http.Client) error {
 
 	return nil
 }
+
+func CrashReport(url, key string) {
+	if e := recover(); e != nil {
+		post := NewPost()
+		SubmitToUrl(post, url, key, nil)
+	}
+}

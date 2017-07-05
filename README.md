@@ -17,14 +17,8 @@ import "github.com/chennqqi/crashreport"
 
 func main() {
 	targetUrl := "http://xxxxx.xx"
-	defer func() {
-		if e := recover(); e != nil {
-			post := crashreport.NewPost()
-			post.Details.Error = crashreport.FromErr(err)
-			crashreport.SubmitTo(post, 											targetUrl,"thisismysecretkey", nil)
-		}
-	}
-
+	targetKey := "yoursecretkey"
+	defer CrashReport(targetKey, targetKey) 
 	panic("This is a panic")
 }
 ```
