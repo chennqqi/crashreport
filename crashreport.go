@@ -256,6 +256,7 @@ func SubmitToUrl(post Post, reportUrl, key string, client *http.Client) error {
 		return errors.Wrapf(err, "create req")
 	}
 	r.Header.Add("X-ApiKey", key)
+	r.Header.Set("Content-Type", "application/json")
 
 	// Default client has 5s timeout
 	if client == nil {
