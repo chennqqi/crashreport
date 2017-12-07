@@ -218,6 +218,7 @@ func Submit(post Post, key string, client *http.Client) error {
 		return errors.Wrapf(err, "create req")
 	}
 	r.Header.Add("X-ApiKey", key)
+	r.Header.Add("Content-Type", "application/json")
 
 	// Default client has 5s timeout
 	if client == nil {
